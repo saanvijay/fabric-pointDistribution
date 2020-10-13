@@ -1,4 +1,4 @@
-## fabric-pointDistribution
+# fabric-pointDistribution
 FabricEngine KL (Point distribution sample)
 Poisson-disc sampling reference algorithm
 
