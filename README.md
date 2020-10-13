@@ -1,4 +1,4 @@
-# fabric-pointDistribution
+## fabric-pointDistribution
 FabricEngine KL (Point distribution sample)
 Poisson-disc sampling reference algorithm
 
@@ -22,11 +22,14 @@ Define k : Limited iteration to choose before rejection (try k iteration, if not
 Define n : Dimensional grid ( here, 3 dimensional)
 Define w : cell size
 
-## Step 1. Initialize an n-dimensional background grid for storing samples and accelerating spatial searches. We pick the cell size to be bounded by r/√ n, so that each grid cell will contain at most one sample, and thus the grid can be implemented as a simple n dimensional array of integers: the default resizing the grid with twice the total number of vertices indicates no sample, a non-negative integer gives the index of the sample located in a cell. 
+## Step 1. 
+Initialize an n-dimensional background grid for storing samples and accelerating spatial searches. We pick the cell size to be bounded by r/√ n, so that each grid cell will contain at most one sample, and thus the grid can be implemented as a simple n dimensional array of integers: the default resizing the grid with twice the total number of vertices indicates no sample, a non-negative integer gives the index of the sample located in a cell. 
 
-## Step 2. Select the initial sample, x0, randomly chosen uniformly from the domain. Insert it into the background grid, and initialize the “active grid” (an array of sample indices) with this index (zero). 
+## Step 2. 
+Select the initial sample, x0, randomly chosen uniformly from the domain. Insert it into the background grid, and initialize the “active grid” (an array of sample indices) with this index (zero). 
 
-## Step 3. While the active list is not empty, choose a random index from it (say i). Generate up to k points chosen uniformly from the spherical annulus between radius r and 2r around xi. For each point in turn, check if it is within distance r of existing samples (using the background grid to only test nearby samples). If a point is adequately far from existing samples, emit it as the next sample and add it to the active list. If after k attempts no such point is found, get again a random point from the vertices.
+## Step 3. 
+While the active list is not empty, choose a random index from it (say i). Generate up to k points chosen uniformly from the spherical annulus between radius r and 2r around xi. For each point in turn, check if it is within distance r of existing samples (using the background grid to only test nearby samples). If a point is adequately far from existing samples, emit it as the next sample and add it to the active list. If after k attempts no such point is found, get again a random point from the vertices.
 
 
 
@@ -95,3 +98,15 @@ The output of the implemented algorithm is shown in the picture.
 
 ## Canvas Graph
 ![ ](canvas.graph.jpg)
+
+## Random Vecor
+![ ](distribution-between-r-2r-random-vector.jpg)
+
+## Scatter Node
+![ ](input-output-ports-scatter-node.jpg)
+
+## Plane-with-turbulizeGeo
+![ ](plane-with-turbulizeGeo.jpg)
+
+## Poisson Distribution
+![ ](poisson-disc-distribution-sample.jpg)
