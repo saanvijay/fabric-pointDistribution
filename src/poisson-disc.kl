@@ -1,0 +1,204 @@
+require Math;
+require Geometry;
+
+/* ===================================================================================================
+   Function    : GetRandomIndex
+   Abstraction : From the given starting and ending index, get the random index by using
+                 parallel execution.
+** ===================================================================================================
+*/
+operator GetRandomIndex<<<eIndex>>>(Size sIndex, out Size randIndex)  {
+  randIndex = mathRandomSInt32(eIndex, sIndex, sIndex, eIndex) ;
+}
+
+/* ===================================================================================================
+   Function    : getRandomPositionFromFixed
+   Abstraction : From the given all positions of the mesh (BTW, positions from standard vertices
+                 of a geometry). Get the random position using parallel execution. Because we need
+                 a random position of already defined vetex from the mesh.
+** ===================================================================================================
+*/
+function Vec3 getRandomPositionFromFixed(Vec3 allPoistions[]) {
+  Size randomIndex;
+  Size startIndex = 0;
+  Size totalSize = allPoistions.size();
+  
+  GetRandomIndex<<<totalSize>>>(startIndex,startIndex);  
+  GetRandomIndex<<<totalSize>>>(startIndex,randomIndex);
+ 
+  return allPoistions[randomIndex];
+
+}
+
+/* ===================================================================================================
+   Function    : getRandomVector
+   Abstraction : From the given current Vec3 position, calculate the random vector.
+                 We need to find out the position between (r, 2r). Use the right-angle 
+                 triangle calculation to get sin, cos to get the random angle and offset.
+** ===================================================================================================
+*/
+function Vec3 getRandomVector(Vec3 currPos, in Size r) {
+  Size randomVectorX;
+  Size randomVectorY;
+  Size randomVectorZ;
+  Size startValue = r;
+  Size maxValue = 2 * r;
+  Size randomAngle;
+  Size two_pi = 2 * 3.14;
+  Size startAngle = 0;
+  
+  //GetRandomIndex<<<two_pi>>>(0,startAngle);
+ GetRandomIndex<<<two_pi>>>(startAngle,startAngle);  
+  GetRandomIndex<<<two_pi>>>(startAngle,randomAngle); 
+  randomAngle *= 10;
+  //report("angle" +randomAngle);
+  Size offsetX = cos(randomAngle);
+  Size offsetY = sin(randomAngle);
+  Size offsetZ = tan(randomAngle);
+ 
+  Vec3 randomVector(currPos.x + offsetX, currPos.y + offsetY, 0);
+  
+  
+  return randomVector;
+}
+
+/* ===================================================================================================
+   Function    : GetRandomAngle
+   Abstraction : Get the random angle from 0 to 360.
+** ===================================================================================================
+*/
+operator GetRandomAngle<<<maxAngle>>>(Float32 sAngle, out Float32 outAngle)  {
+  outAngle = mathRandomFloat32(maxAngle, sAngle, sAngle, maxAngle) ;
+}
+
+/* ===================================================================================================
+   Function    : getRandomVector
+   Abstraction : We need to find out the random vector position between (r, 2r). Use the right-angle 
+                 triangle calculation to get sin, cos to get the random angle and offset.
+** ===================================================================================================
+*/
+function Vec3 getRandomVector( in Scalar r) {
+  Float32 randomVectorX;
+  Float32 randomVectorY;
+  Float32 randomVectorZ;
+  Float32 startValue = r;
+  Float32 maxValue = 2 * r;
+  Float32 randomAngle;
+  Float32 two_pi = 2 * 3.14;
+  Float32 startAngle = 0;
+  Float32 maxAngle = 360.0;
+  
+  GetRandomAngle<<<maxAngle>>>(startAngle,startAngle);  
+  GetRandomAngle<<<two_pi>>>(startAngle,randomAngle); 
+ 
+  Float32 offsetX = cos(randomAngle);
+  Float32 offsetY = sin(randomAngle);
+  Float32 offsetZ = tan(randomAngle);
+ 
+  Vec3 randomVector(offsetX, offsetY,0);
+  
+  return randomVector;
+}
+
+/* ===================================================================================================
+   Function    : GetRandomVectorDynamically
+   Abstraction : From the current position calculate the random angle,
+                 from the angle calculate X,Y offset and return the random vector
+   Comments    : It has been defined as parallel execution operator, because we need random
+                 vector calculation should be unique, random, fast and can be extensible 
+                 in future.
+** ===================================================================================================
+*/
+operator GetRandomVectorDynamically<<<iteration>>>(Vec3 currPos, in Size r, out Vec3 randomVector) {
+  Size randomVectorX;
+  Size randomVectorY;
+  Size randomVectorZ;
+  Size startValue = r;
+  Size maxValue = 2 * r;
+  Size randomAngle;
+  Size two_pi = 2 * 3.14;
+  
+  GetRandomIndex<<<two_pi>>>(iteration,randomAngle); 
+  Size offsetX = cos(randomAngle);
+  Size offsetY = sin(randomAngle);
+ 
+  randomVector.set(currPos.x + offsetX, currPos.y + offsetY, 0);
+}
+
+dfgEntry {
+  if(mesh==false){
+    report("No input mesh !!!");
+    return;
+  }
+  
+  
+   /* ============= Poisson-disc Sampling Reference =============== */
+  
+  // Define r : Minimum distance between samples
+    Float64 r = 50; // pixels
+  // Define k : Limited iteration to choose before rejection (try k iteration, if not done, quit)
+    Float64 k = 30; 
+  // Define n : Dimensional grid (3 dimensional)
+    Float64 n = 3;
+  // Define w : cell size
+    Float64 w = r/sqrt(n);
+  // Define rows
+    Float64 rows = pHeight/w;
+  // Define cols
+    Float64 cols = pWidth/w;
+  // How many times you need to iterate?
+    Size N = 100;
+    
+  
+  // Get all possible positions
+  Vec3 allPoints[];
+  allPoints = mesh.getAllPointPositions();
+ 
+  // Getting the number of vertices from the mesh
+  Size vertices_count = mesh.pointCount();
+  grid.resize(vertices_count*2);
+  activeGrid.resize(vertices_count*2);
+        
+  for (Size times =0; times < N; times++) { 
+           // If you are unable to find the nearest element, then pick the random point from vertices
+           Vec3 currPos = getRandomPositionFromFixed(allPoints);
+        
+          // Draw the current position
+          grid.push(currPos);
+          activeGrid.push(currPos);
+          Boolean canDistribute = true;
+          Size foundIndex;
+       
+        if (activeGrid.size() > 0) {
+            Vec3 randomVector = getRandomVector(currPos, r) ;
+            Boolean foundNearest = true;
+            Vec3 nearestPoint;
+            Xfo neighbor;
+            for(Integer iter=0; iter<k; iter++) {
+              // Find nearest point
+              Integer i, j;
+              for(i=-1; i<=1; i++) {
+                for(j=-1; j<=1; j++) {
+                    nearestPoint.set((currPos.x+randomVector.x+i), (currPos.y + randomVector.y+j), 0);
+                    Size index = (currPos.x+randomVector.x+i) + (currPos.y + randomVector.y+j) * cols;
+                    if (index > grid.size()) continue;
+                        neighbor = grid[index];
+                         foundIndex = index; 
+                        if (nearestPoint.distanceTo(currPos) < 1 || nearestPoint.distanceTo(currPos) < r) {
+                            //reject it
+                            foundNearest = false;
+                        } // foundNearest
+                   } // j loop end
+                } // i loop end
+              } // 30 times iterations
+              
+              if(foundNearest) {
+                nearestPoint.x /=w; nearestPoint.y /=w;
+                activeGrid.push(nearestPoint);
+                currPos = nearestPoint;
+              } // add nearest into grid
+          } // activeGrid
+                 
+   } // 100 times loop
+}
+
