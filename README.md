@@ -94,4 +94,4 @@ The output of the implemented algorithm is shown in the picture.
 	The Algorithm reference has taken from Robert Bridson‘s paper.
 
 ## Canvas Graph
-![ ](//canvas.graph.jpg)
+![ ](canvas.graph.jpg)
