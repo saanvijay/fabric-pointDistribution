@@ -97,16 +97,16 @@ The output of the implemented algorithm is shown in the picture.
 	The Algorithm reference has taken from Robert Bridson‘s paper.
 
 ## Canvas Graph
-![ ](canvas.graph.jpg)
+![ ](/images/canvas.graph.jpg)
 
 ## Random Vecor
-![ ](distribution-between-r-2r-random-vector.jpg)
+![ ](/images/distribution-between-r-2r-random-vector.jpg)
 
 ## Scatter Node
-![ ](input-output-ports-scatter-node.jpg)
+![ ](/images/input-output-ports-scatter-node.jpg)
 
 ## Plane-with-turbulizeGeo
-![ ](plane-with-turbulizeGeo.jpg)
+![ ](/images/plane-with-turbulizeGeo.jpg)
 
 ## Poisson Distribution
-![ ](poisson-disc-distribution-sample.jpg)
+![ ](/images/poisson-disc-distribution-sample.jpg)
